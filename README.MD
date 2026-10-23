@@ -1,7 +1,7 @@
 # Kelompok 7: Social Media Data Pipeline
 
 ## Cara menjalankan
-1. git clone <URL_REPO>
+1. git clone https://github.com/Rafi-agastya/DE-kelompok7-socialMedia-pipeline.git
 2. cp .env.example .env        (Windows PowerShell: Copy-Item .env.example .env)
 3. docker compose up -d
 4. python -m venv .venv
