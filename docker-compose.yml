@@ -1,0 +1,53 @@
+services:
+  postgres-oltp:
+    image: postgres:16
+    container_name: socmed_oltp
+    environment:
+      POSTGRES_DB: ${OLTP_DB}
+      POSTGRES_USER: ${OLTP_USER}
+      POSTGRES_PASSWORD: ${OLTP_PASSWORD}
+    ports:
+      - "${OLTP_PORT}:5432"
+    volumes:
+      - oltp_data:/var/lib/postgresql/data
+      - ./sql/oltp:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${OLTP_USER} -d ${OLTP_DB}"]
+      interval: 5s
+      retries: 10
+
+  postgres-staging:
+    image: postgres:16
+    container_name: socmed_staging
+    environment:
+      POSTGRES_DB: ${STG_DB}
+      POSTGRES_USER: ${STG_USER}
+      POSTGRES_PASSWORD: ${STG_PASSWORD}
+    ports:
+      - "${STG_PORT}:5432"
+    volumes:
+      - stg_data:/var/lib/postgresql/data
+      - ./sql/staging:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${STG_USER} -d ${STG_DB}"]
+      interval: 5s
+      retries: 10
+
+  minio:
+    image: cgr.dev/chainguard/minio:latest
+    container_name: socmed_minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Web console
+    volumes:
+      - minio_data:/data
+
+
+volumes:
+  oltp_data:
+  stg_data:
+  minio_data:
