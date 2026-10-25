@@ -1,0 +1,55 @@
+erDiagram
+    users ||--o{ posts : "menulis"
+    users ||--o{ comments : "menulis"
+    users ||--o{ likes : "memberi"
+    users ||--o{ follows : "mengikuti (follower_id)"
+    users ||--o{ follows : "diikuti (followed_id)"
+    posts ||--o{ comments : "dikomentari"
+    posts ||--o{ likes : "disukai"
+    posts ||--o{ post_hashtags : "memiliki"
+    hashtags ||--o{ post_hashtags : "dipakai"
+
+    users {
+        int user_id PK
+        varchar username UK
+        varchar email UK
+        varchar full_name
+        text bio
+        varchar country
+        boolean is_verified
+        timestamp created_at
+    }
+    posts {
+        int post_id PK
+        int user_id FK
+        text content
+        varchar media_type
+        timestamp created_at
+    }
+    comments {
+        int comment_id PK
+        int post_id FK
+        int user_id FK
+        text content
+        timestamp created_at
+    }
+    likes {
+        int like_id PK
+        int post_id FK
+        int user_id FK
+        timestamp created_at
+    }
+    follows {
+        int follow_id PK
+        int follower_id FK
+        int followed_id FK
+        timestamp created_at
+    }
+    hashtags {
+        int hashtag_id PK
+        varchar tag UK
+    }
+    post_hashtags {
+        int post_id PK
+        int hashtag_id PK
+    }
