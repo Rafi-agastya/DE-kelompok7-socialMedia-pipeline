@@ -1,0 +1,12 @@
+socmed:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      port: "{{ env_var('STG_PORT', '5434') | as_number }}"
+      user: "{{ env_var('STG_USER', 'admin') }}"
+      password: "{{ env_var('STG_PASSWORD') }}"
+      dbname: "{{ env_var('STG_DB', 'socmed_staging') }}"
+      schema: public
+      threads: 4

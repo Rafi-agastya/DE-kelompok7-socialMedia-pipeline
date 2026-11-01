@@ -3,3 +3,9 @@ __pycache__/
 *.pyc
 .venv/
 data/
+.venv-dbt/
+dbt_socmed/target/
+dbt_socmed/logs/
+dbt_socmed/dbt_packages/
+dbt_socmed/profiles.yml
+dbt_socmed/.user.yml

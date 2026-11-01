@@ -1,0 +1,201 @@
+version: 2
+models:
+  - name: dim_date
+    description: Dimensi tanggal (satu baris per hari) dari tanggal paling awal sampai paling akhir pada data.
+    columns:
+      - name: date_key
+        description: Kunci tanggal berformat YYYYMMDD
+        data_tests: [unique, not_null]
+      - name: full_date
+        description: Tanggal lengkap
+      - name: day_of_month
+        description: Tanggal dalam bulan (1-31)
+      - name: day_of_week
+        description: Nomor hari dalam minggu
+      - name: day_name
+        description: Nama hari dalam bahasa Indonesia
+      - name: week_of_year
+        description: Nomor minggu dalam tahun
+      - name: month_number
+        description: Nomor bulan (1-12)
+      - name: month_name
+        description: Nama bulan dalam bahasa Indonesia
+      - name: quarter
+        description: Kuartal dalam tahun (1-4)
+      - name: year
+        description: Tahun
+      - name: is_weekend
+        description: True bila Sabtu atau Minggu
+
+  - name: dim_user
+    description: Dimensi pengguna (satu baris per akun).
+    columns:
+      - name: user_key
+        description: Surrogate key pengguna
+        data_tests: [unique, not_null]
+      - name: user_id
+        description: ID asli pengguna dari sistem sumber
+        data_tests: [unique, not_null]
+      - name: username
+        description: Nama pengguna (username akun)
+      - name: full_name
+        description: Nama lengkap pengguna
+      - name: country_code
+        description: Kode negara pengguna
+      - name: country_name
+        description: Nama negara hasil pemetaan dari kode negara
+      - name: is_verified
+        description: True bila akun terverifikasi
+      - name: joined_date
+        description: Tanggal akun dibuat
+      - name: joined_date_key
+        description: Kunci tanggal akun dibuat (mengacu ke dim_date)
+
+  - name: dim_media_type
+    description: Dimensi jenis media post.
+    columns:
+      - name: media_type_key
+        description: Surrogate key jenis media
+        data_tests: [unique, not_null]
+      - name: media_type
+        description: Nama jenis media (image, text, video)
+      - name: media_type_label
+        description: Label jenis media dalam bahasa Indonesia (Unggahan gambar, Unggahan teks, Unggahan video)
+
+  - name: dim_hashtag
+    description: Dimensi hashtag.
+    columns:
+      - name: hashtag_key
+        description: Surrogate key hashtag
+        data_tests: [unique, not_null]
+      - name: hashtag_id
+        description: ID asli hashtag dari sistem sumber
+      - name: tag
+        description: Teks hashtag
+
+  - name: fact_post
+    description: "Tabel fakta dengan grain satu baris per post. Berisi ukuran jumlah like, komentar, hashtag, dan engagement."
+    columns:
+      - name: post_id
+        description: ID post (kunci utama)
+        data_tests: [unique, not_null]
+      - name: user_key
+        description: Pembuat post (mengacu ke dim_user)
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_user')
+                field: user_key
+      - name: date_key
+        description: Tanggal post (mengacu ke dim_date)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: posted_hour
+        description: Jam post dibuat (0-23)
+      - name: media_type_key
+        description: Jenis media (mengacu ke dim_media_type)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_media_type')
+                field: media_type_key
+      - name: content_length
+        description: Panjang isi post (jumlah karakter)
+      - name: like_count
+        description: Jumlah like pada post
+      - name: comment_count
+        description: Jumlah komentar pada post
+      - name: hashtag_count
+        description: Jumlah hashtag pada post
+      - name: engagement_count
+        description: Jumlah like ditambah jumlah komentar
+
+  - name: fact_interaction
+    description: Tabel fakta dengan grain satu baris per like atau komentar.
+    columns:
+      - name: interaction_key
+        description: Surrogate key interaksi
+        data_tests: [unique, not_null]
+      - name: interaction_type
+        description: Jenis interaksi (like atau comment)
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['like', 'comment']
+      - name: source_id
+        description: ID baris asal di sistem sumber (like_id atau comment_id, sesuai interaction_type)
+      - name: post_id
+        description: ID post yang menerima interaksi
+      - name: actor_user_key
+        description: Pengguna yang melakukan interaksi
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_user')
+                field: user_key
+      - name: post_author_user_key
+        description: Pembuat post yang menerima interaksi
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_user')
+                field: user_key
+      - name: date_key
+        description: Tanggal interaksi
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: interaction_hour
+        description: Jam interaksi terjadi (0-23)
+
+  - name: fact_follow
+    description: Tabel fakta dengan grain satu baris per relasi mengikuti.
+    columns:
+      - name: follow_id
+        description: ID relasi (kunci utama)
+        data_tests: [unique, not_null]
+      - name: follower_user_key
+        description: Pengguna yang mengikuti
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_user')
+                field: user_key
+      - name: followed_user_key
+        description: Pengguna yang diikuti
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_user')
+                field: user_key
+      - name: date_key
+        description: Tanggal mulai mengikuti
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+
+  - name: bridge_post_hashtag
+    description: Tabel penghubung many-to-many antara post dan hashtag.
+    columns:
+      - name: post_id
+        description: ID post
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('fact_post')
+                field: post_id
+      - name: hashtag_key
+        description: Kunci hashtag
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_hashtag')
+                field: hashtag_key

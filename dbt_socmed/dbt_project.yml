@@ -1,0 +1,15 @@
+name: socmed
+version: "1.0.0"
+config-version: 2
+profile: socmed
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+models:
+  socmed:
+    clean:
+      +schema: clean
+      +materialized: table
+    warehouse:
+      +schema: warehouse
+      +materialized: table

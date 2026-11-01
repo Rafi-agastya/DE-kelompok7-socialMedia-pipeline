@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: staging
+    description: "Schema staging di PostgreSQL socmed_staging. Berisi data mentah hasil load dari MinIO (Milestone 2), dilengkapi kolom source_table, batch_id, dan ingested_at."
+    schema: staging
+    tables:
+      - name: users
+        description: "Data akun pengguna mentah."
+      - name: posts
+        description: "Data postingan mentah."
+      - name: comments
+        description: "Data komentar mentah."
+      - name: likes
+        description: "Data like mentah."
+      - name: follows
+        description: "Data relasi mengikuti mentah."
+      - name: hashtags
+        description: "Data hashtag mentah."
+      - name: post_hashtags
+        description: "Data relasi post dan hashtag mentah."

@@ -1,0 +1,127 @@
+version: 2
+models:
+  - name: users
+    description: "Data pengguna hasil cleansing dari staging.users."
+    columns:
+      - name: user_id
+        description: "ID unik pengguna (kunci utama)."
+        data_tests: [unique, not_null]
+      - name: username
+        description: "Nama pengguna, unik per akun."
+        data_tests: [unique, not_null]
+      - name: email
+        description: "Alamat email pengguna, unik per akun."
+        data_tests: [unique, not_null]
+      - name: full_name
+        description: "Nama lengkap pengguna."
+      - name: bio
+        description: "Teks biografi profil pengguna."
+      - name: country_code
+        description: "Kode negara pengguna."
+      - name: is_verified
+        description: "True bila akun terverifikasi."
+      - name: created_at
+        description: "Waktu akun dibuat."
+      - name: source_batch_id
+        description: "ID batch load dari staging, untuk penelusuran asal data."
+
+  - name: posts
+    description: "Data postingan hasil cleansing dari staging.posts."
+    columns:
+      - name: post_id
+        description: "ID unik postingan (kunci utama)."
+        data_tests: [unique, not_null]
+      - name: user_id
+        description: "ID pembuat postingan (mengacu ke users)."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('users')
+                field: user_id
+      - name: content
+        description: "Isi teks postingan."
+      - name: media_type
+        description: "Jenis media postingan: text, image, atau video."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['text', 'image', 'video']
+      - name: created_at
+        description: "Waktu postingan dibuat."
+      - name: source_batch_id
+        description: "ID batch load dari staging, untuk penelusuran asal data."
+
+  - name: comments
+    description: "Data komentar hasil cleansing dari staging.comments."
+    columns:
+      - name: comment_id
+        description: "ID unik komentar (kunci utama)."
+        data_tests: [unique, not_null]
+      - name: post_id
+        description: "ID postingan yang dikomentari (mengacu ke posts)."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('posts')
+                field: post_id
+      - name: user_id
+        description: "ID pengguna yang menulis komentar."
+      - name: content
+        description: "Isi komentar."
+      - name: created_at
+        description: "Waktu komentar dibuat."
+      - name: source_batch_id
+        description: "ID batch load dari staging, untuk penelusuran asal data."
+
+  - name: likes
+    description: "Data like hasil cleansing dari staging.likes."
+    columns:
+      - name: like_id
+        description: "ID unik like (kunci utama)."
+        data_tests: [unique, not_null]
+      - name: post_id
+        description: "ID postingan yang di-like."
+      - name: user_id
+        description: "ID pengguna yang memberi like."
+      - name: created_at
+        description: "Waktu like diberikan."
+      - name: source_batch_id
+        description: "ID batch load dari staging, untuk penelusuran asal data."
+
+  - name: follows
+    description: "Data relasi mengikuti hasil cleansing dari staging.follows."
+    columns:
+      - name: follow_id
+        description: "ID unik relasi mengikuti (kunci utama)."
+        data_tests: [unique, not_null]
+      - name: follower_id
+        description: "ID pengguna yang mengikuti."
+      - name: followed_id
+        description: "ID pengguna yang diikuti."
+      - name: created_at
+        description: "Waktu mulai mengikuti."
+      - name: source_batch_id
+        description: "ID batch load dari staging, untuk penelusuran asal data."
+
+  - name: hashtags
+    description: "Data hashtag hasil cleansing dari staging.hashtags."
+    columns:
+      - name: hashtag_id
+        description: "ID unik hashtag (kunci utama)."
+        data_tests: [unique, not_null]
+      - name: tag
+        description: "Teks hashtag, unik."
+        data_tests: [unique]
+      - name: source_batch_id
+        description: "ID batch load dari staging, untuk penelusuran asal data."
+
+  - name: post_hashtags
+    description: "Relasi many-to-many antara postingan dan hashtag hasil cleansing dari staging.post_hashtags."
+    columns:
+      - name: post_id
+        description: "ID postingan."
+      - name: hashtag_id
+        description: "ID hashtag."
+      - name: source_batch_id
+        description: "ID batch load dari staging, untuk penelusuran asal data."
