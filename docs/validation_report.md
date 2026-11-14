@@ -1,4 +1,4 @@
-Validasi batch 20261025T054007
+Validasi batch 20261025T055112
 
 | Tabel | OLTP | MinIO | Staging | Kolom penanda kosong | Status |
 |---|---|---|---|---|---|

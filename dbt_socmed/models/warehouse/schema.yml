@@ -198,4 +198,4 @@ models:
           - relationships:
               arguments:
                 to: ref('dim_hashtag')
-                field: hashtag_key
+                field: hashtag_key  
