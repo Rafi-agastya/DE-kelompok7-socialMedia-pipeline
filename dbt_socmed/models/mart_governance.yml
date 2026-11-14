@@ -1,0 +1,24 @@
+﻿version: 2
+
+sources:
+  - name: mart_governance
+    schema: mart
+    description: "Presentation layer dengan anonimisasi PII dan pembatasan RBAC untuk Apache Superset."
+    tables:
+      - name: dim_user_masked
+        description: "View dim_user yang telah di-masking pada kolom username dan full_name."
+        columns:
+          - name: user_key
+            tests:
+              - unique
+              - not_null
+          - name: user_id
+            tests:
+              - unique
+              - not_null
+          - name: username_masked
+            tests:
+              - not_null
+          - name: full_name_masked
+            tests:
+              - not_null

@@ -46,8 +46,24 @@ services:
     volumes:
       - minio_data:/data
 
+  superset:
+    image: apache/superset:latest
+    container_name: social_media_superset
+    restart: unless-stopped
+    ports:
+      - "8088:8088"
+    environment:
+      - SUPERSET_SECRET_KEY=kelompok7_upnvj_bigdata_m4_secret_2026
+      - SUPERSET_LOAD_EXAMPLES=no
+      - CYPRESS_CONFIG=false
+    volumes:
+      - superset_home:/app/superset_home
+    depends_on:
+      postgres-staging:
+        condition: service_healthy
 
 volumes:
   oltp_data:
   stg_data:
   minio_data:
+  superset_home:
