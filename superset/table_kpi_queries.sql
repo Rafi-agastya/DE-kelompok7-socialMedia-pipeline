@@ -131,3 +131,45 @@ LIMIT 5;
 
 -- B. Uji akses ilegal ke tabel mentah staging (Ditolak - permission denied)
 SELECT * FROM staging.users LIMIT 5;
+
+
+-- 1. Content Format Performance (Grouped Bar Chart)
+SELECT
+    m.description AS jenis_media,
+    ROUND(AVG(p.like_count), 2) AS avg_likes,
+    ROUND(AVG(p.comment_count), 2) AS avg_comments
+FROM mart.fact_post p
+JOIN mart.dim_media_type m ON p.media_type_key = m.media_type_key
+GROUP BY m.description;
+
+-- 2. Top Active Creators Masked (Table Chart)
+SELECT
+    u.username_masked,
+    u.full_name_masked,
+    u.country_name,
+    COUNT(p.post_id) AS total_post,
+    SUM(p.engagement_count) AS total_interaksi
+FROM mart.fact_post p
+JOIN mart.dim_user_masked u ON p.user_key = u.user_key
+GROUP BY u.username_masked, u.full_name_masked, u.country_name
+ORDER BY total_interaksi DESC;
+
+-- 3. Top 10 Trending Hashtags (Horizontal Bar Chart)
+SELECT
+    h.tag AS hashtag,
+    COUNT(b.post_id) AS jumlah_penggunaan,
+    SUM(p.engagement_count) AS total_engagement
+FROM mart.bridge_post_hashtag b
+JOIN mart.dim_hashtag h ON b.hashtag_key = h.hashtag_key
+JOIN mart.fact_post p ON b.post_id = p.post_id
+GROUP BY h.tag
+ORDER BY total_engagement DESC;
+
+-- 4. Network & Follower Growth (Line Chart)
+SELECT
+    d.full_date AS follow_date,
+    COUNT(f.follow_id) AS jumlah_follow
+FROM mart.fact_follow f
+JOIN mart.dim_date d ON f.date_key = d.date_key
+GROUP BY d.full_date
+ORDER BY d.full_date;
